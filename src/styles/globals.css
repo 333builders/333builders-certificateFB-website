@@ -24,3 +24,8 @@ a {
   background-color: #707070;
 }
 
+.btn:enabled {
+  animation: none;
+}
+
+

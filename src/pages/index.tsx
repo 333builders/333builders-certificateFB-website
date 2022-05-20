@@ -53,14 +53,6 @@ const Home: NextPage = (props) => {
   const Login = () => {
     return (
       <>
-        <p className="text-xl">Congrats, here is your certificate!</p>
-        <div className="w-[360px] h-40 relative">
-          <Image
-            src="/certificatetemplate.png"
-            layout="fill"
-            objectFit="cover"
-          />
-        </div>
         {connectors.map((x) => (
           <button
             className="btn btn-primary rounded-full"
@@ -73,7 +65,7 @@ const Home: NextPage = (props) => {
             {loading && x.name === connector?.name && "…"}
           </button>
         ))}
-        <p>Connect to your Metamask wallet to mint</p>
+        <p>Connect to your wallet to mint</p>
       </>
     );
   };
@@ -81,7 +73,7 @@ const Home: NextPage = (props) => {
   const Minter = () => {
     const [load, isLoading] = useState(false)
     const [name, setName] = useState('')
-    const [template, setTempalte] = useState('white')
+    const [templateWhite, setTemplateWhite] = useState(true)
 
     const {
       register,
@@ -96,7 +88,7 @@ const Home: NextPage = (props) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ template: template, name: name })
+        body: JSON.stringify({ template: templateWhite ? 'white' : 'black', name: name })
       });
       if (response.ok) {
         const json_response = await response.json();
@@ -105,7 +97,7 @@ const Home: NextPage = (props) => {
       }
       isLoading(false)
     };
-
+    
     const ButtonSubmit = () => {
       return (
         <>
@@ -199,12 +191,40 @@ const Home: NextPage = (props) => {
                     disabled: load
                   })
                   }
-                /></>}
-            {errors.name && <span>This field is required</span>}
-            {load && <ButtonLoading />}
-            {!load && !ready && <ButtonSubmit />}
-            {!load && ready && <ButtonMint />}
-          </div>
+                />
+                <div className="pt-8 grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                  <input type="radio" id="white" name="template" value="" checked={templateWhite} onClick={() => { setTemplateWhite(!templateWhite);}}/>
+                  <label htmlFor="white" className="pl-2">White</label>
+                  </div>
+                  <div className="text-center">
+                  <input type="radio" id="black" name="template" value="" checked={!templateWhite} onClick={() => { setTemplateWhite(!templateWhite)}}></input>
+                  <label htmlFor="black" className="pl-2">Black</label>
+                  </div>
+                </div>
+                <div className="pt-8 text-center flex-grow">
+                  {templateWhite ? (
+                    <Image
+                    src="/binco.jpg"
+                    alt="template white"
+                    width={350}
+                    height={350}
+                  />
+                  ) : (
+                    <Image
+                    src="/nero.jpg"
+                    alt="template black"
+                    width={350}
+                    height={350}
+                  />
+                  )}
+                </div>
+                </>}
+                {errors.name && <span>This field is required</span>}
+                {load && <ButtonLoading />}
+                {!load && !ready && <ButtonSubmit />}
+                {!load && ready && <ButtonMint />}
+              </div>
         </form>
       </>
     );
@@ -246,7 +266,7 @@ const Home: NextPage = (props) => {
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center space-y-8">
         <LOGO />
-        <h2 className="text-3xl font-bold text-center pb-16">333.Builders</h2>
+        <h2 className="text-3xl font-bold text-center pb-8">333.Builders</h2>
         <SwitchNetwork />
         {!connected ? (
           <Login />

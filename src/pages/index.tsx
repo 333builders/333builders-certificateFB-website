@@ -42,7 +42,7 @@ const Home: NextPage = (props) => {
             className="btn btn-primary rounded-full"
             onClick={() => switchNetwork(80001)}
           >
-            Switch to Polygon
+            Switch to Mumbai
           </button>
         )}
         {switchNetwork && networkData.chain.id == 80001 && <></>}
@@ -251,7 +251,9 @@ const Home: NextPage = (props) => {
         {!connected ? (
           <Login />
         ) : (
-          <>{!minted ? <Minter /> : <Opensea />}</>
+          <>{networkData.chain.id === 80001 &&
+            <>{!minted ? <Minter /> : <Opensea />}</>
+          }</>
         )}
       </div>
     </div>

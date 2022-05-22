@@ -56,12 +56,14 @@ const Home: NextPage = (props) => {
         {connectors.map((x) => (
           <button
             className="btn btn-primary rounded-full"
-            disabled={isMounted && !x.ready}
             key={x.name}
-            onClick={() => connect(x)}
+            onClick={() => {
+              isMounted && x.ready ? connect(x) : window.open("https://metamask.io/", "_blank");
+            } 
+            } 
           >
-            {x.id === "injected" ? (isMounted ? x.name : x.id) : x.name}
-            {isMounted && !x.ready && " (unsupported)"}
+            {x.id === "injected" ? (isMounted && x.ready ? x.name : "") : x.name}
+            {isMounted && !x.ready && " Please, install metamamsk"}
             {loading && x.name === connector?.name && "…"}
           </button>
         ))}
@@ -152,6 +154,12 @@ const Home: NextPage = (props) => {
                 isLoading(false)
               }}>MINT</button>
           </>
+        )
+      }
+
+      const loaderImage = () => {
+        return (
+          <TailSpin color="#FFF" height={100} width={100} wrapperStyle={{ justifyContent: "center" }} />
         )
       }
 

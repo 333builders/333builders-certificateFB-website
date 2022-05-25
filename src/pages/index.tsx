@@ -241,7 +241,7 @@ const Home: NextPage = (props) => {
         <button
           className="btn btn-primary rounded-full"
           onClick={() => {
-            const link = "https://testnets.opensea.io/";
+            const link = "https://opensea.io/";
             window.open(link, "_blank");
           }}
         >

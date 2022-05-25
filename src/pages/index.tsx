@@ -37,15 +37,15 @@ const Home: NextPage = (props) => {
   const SwitchNetwork = () => {
     return (
       <>
-        {switchNetwork && networkData.chain.id !== 80001 && (
+        {switchNetwork && networkData.chain.id !== 137 && (
           <button
             className="btn btn-primary rounded-full"
-            onClick={() => switchNetwork(80001)}
+            onClick={() => switchNetwork(137)}
           >
-            Switch to Mumbai
+            Switch to Polygon
           </button>
         )}
-        {switchNetwork && networkData.chain.id == 80001 && <></>}
+        {switchNetwork && networkData.chain.id == 137 && <></>}
       </>
     );
   };
@@ -125,7 +125,7 @@ const Home: NextPage = (props) => {
       const [load, isLoading] = useState(false)
       const [{ data, error, loading }, write] = useContractWrite(
         {
-          addressOrName: '0x30811f42fC3191a7f0e8686160C1AfC77a73aa32',
+          addressOrName: '0x6be666719e7346488c795006EEd2Abe2d33b8E4c',
           contractInterface: Abi.abi,
         },
         'mint',
@@ -154,12 +154,6 @@ const Home: NextPage = (props) => {
                 isLoading(false)
               }}>MINT</button>
           </>
-        )
-      }
-
-      const loaderImage = () => {
-        return (
-          <TailSpin color="#FFF" height={100} width={100} wrapperStyle={{ justifyContent: "center" }} />
         )
       }
 
@@ -279,7 +273,7 @@ const Home: NextPage = (props) => {
         {!connected ? (
           <Login />
         ) : (
-          <>{networkData.chain.id === 80001 &&
+          <>{networkData.chain.id === 137 &&
             <>{!minted ? <Minter /> : <Opensea />}</>
           }</>
         )}

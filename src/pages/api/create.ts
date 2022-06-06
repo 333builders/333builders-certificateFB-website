@@ -27,7 +27,7 @@ export default async function handler(
     const ctx = canvas.getContext('2d')
 
     if (req.body.template == 'white') {
-      loadImage(path.join(process.cwd(),'/public/binco.jpg')).then((image) => {
+      loadImage(path.join(process.cwd(),'/public/bianco_1050.jpg')).then((image) => {
         ctx.drawImage(image, 0, 0)
         ctx.textAlign = "center";
         ctx.font = '15px Space Grotesk'
@@ -36,7 +36,7 @@ export default async function handler(
       })
     }
     else {
-      loadImage(path.join(process.cwd(),'/public/nero.jpg')).then((image) => {
+      loadImage(path.join(process.cwd(),'/public/nero_1050.jpg')).then((image) => {
         ctx.drawImage(image, 0, 0)
         ctx.textAlign = "center";
         ctx.font = '15px Space Grotesk'
@@ -60,14 +60,14 @@ export default async function handler(
     const cid = res_image.IpfsHash
     const url_image = "https://ipfs.io/ipfs/" + cid
     const metadata = {
-      "description": "333.Builders is a community of talents, professionals, investors and enthusiasts of the Blockchain and Web3 ecosystem. We aim to become first investment DAO founded by Italian minds.",
+      "description": '333.Builders is a community of talents, professionals, investors and enthusiasts of the Blockchain and Web3 world. We aims to become the first Venture Builder and Investment DAO founded by Italian minds. Reach us here: 333builders.com\n\n About 333.BuildersC1:\n Academy is the section of 333.Builders born with educational purposes. "#1 Web3 in tokens: Introduzione agli NFT" is the first course created by the Academy, with the aim to explain the technology and the revolution they brought, moving billions of dollars. It is a course for beginners.',
       "external_url": "333builders.com",
       "image": url_image,
-      "name": "NFT for beginners",
+      "name": "Web3 in tokens",
       "attributes": [
         {
           "trait_type": "Course",
-          "value": "#1NFTforbeginners"
+          "value": "#333.Academy"
         },
         {
           "trait_type": "Year",

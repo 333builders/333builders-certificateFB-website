@@ -125,7 +125,7 @@ const Home: NextPage = (props) => {
       const [load, isLoading] = useState(false)
       const [{ data, error, loading }, write] = useContractWrite(
         {
-          addressOrName: '0x6be666719e7346488c795006EEd2Abe2d33b8E4c',
+          addressOrName: '0xC8b05f4ABaB41A84a1822F072C569DCEc0048C25',
           contractInterface: Abi.abi,
         },
         'mint',

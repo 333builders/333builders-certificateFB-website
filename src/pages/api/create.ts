@@ -23,25 +23,25 @@ export default async function handler(
 
   try {
 
-    const canvas = createCanvas(350, 350)
+    const canvas = createCanvas(1050, 1050)
     const ctx = canvas.getContext('2d')
 
     if (req.body.template == 'white') {
       loadImage(path.join(process.cwd(),'/public/bianco_1050.jpg')).then((image) => {
         ctx.drawImage(image, 0, 0)
         ctx.textAlign = "center";
-        ctx.font = '15px Space Grotesk'
+        ctx.font = '35px Space Grotesk'
         ctx.fillStyle = "#bf0022"
-        ctx.fillText(req.body.name, 175, 228)
+        ctx.fillText(req.body.name, 525, 684)
       })
     }
     else {
       loadImage(path.join(process.cwd(),'/public/nero_1050.jpg')).then((image) => {
         ctx.drawImage(image, 0, 0)
         ctx.textAlign = "center";
-        ctx.font = '15px Space Grotesk'
+        ctx.font = '35px Space Grotesk'
         ctx.fillStyle = "#bc0020";
-        ctx.fillText(req.body.name, 175, 228)
+        ctx.fillText(req.body.name, 525, 684)
         console.log(canvas.toDataURL())
       })
     }
@@ -60,7 +60,7 @@ export default async function handler(
     const cid = res_image.IpfsHash
     const url_image = "https://ipfs.io/ipfs/" + cid
     const metadata = {
-      "description": '333.Builders is a community of talents, professionals, investors and enthusiasts of the Blockchain and Web3 world. We aims to become the first Venture Builder and Investment DAO founded by Italian minds. Reach us here: 333builders.com\n\n About 333.BuildersC1:\n Academy is the section of 333.Builders born with educational purposes. "#1 Web3 in tokens: Introduzione agli NFT" is the first course created by the Academy, with the aim to explain the technology and the revolution they brought, moving billions of dollars. It is a course for beginners.',
+      "description": '333.Builders is a community of talents, professionals, investors and enthusiasts of the Blockchain and Web3 world. We aims to become the first Venture Builder and Investment DAO founded by Italian minds. Reach us here: 333builders.com',
       "external_url": "333builders.com",
       "image": url_image,
       "name": "Web3 in tokens",

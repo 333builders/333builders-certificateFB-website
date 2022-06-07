@@ -177,12 +177,12 @@ const Home: NextPage = (props) => {
             {!ready &&
               <>
                 <label className="label">
-                  <span className="label-text">What is your name?</span>
+                  <span className="label-text">What is your name/nickname?</span>
                 </label>
                 <input
                   maxLength={30}
                   className="input "
-                  placeholder="Mario Rossi"
+                  placeholder="Mario Rossi, MarioRossi7..."
                   {...register("name", {
                     required: true,
                     onChange: (event) => {

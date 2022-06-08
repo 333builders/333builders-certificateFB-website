@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useConnect, useNetwork, useContractWrite } from "wagmi";
+import { useConnect, useAccount, useNetwork, useContractWrite } from "wagmi";
 import LOGO from "../components/Logo";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Abi from '../../public/CertificateFB333Builders.json'
@@ -239,6 +239,30 @@ const Home: NextPage = (props) => {
   };
 
   const Opensea = () => {
+
+    const [{ data: accountData }, disconnect] = useAccount()
+
+    const [loadOpen,isLoadingOpen] = useState(false)
+
+    async function retrieveTokenURL() {
+      console.log(accountData.address)
+      if(accountData?.address) {
+        const response = await fetch('/api/retrieveid', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ address: accountData.address })
+        });
+        if (response.ok) {
+          const json_response = await response.json();
+          return "https://testnets.opensea.io/assets/mumbai/0x6be666719e7346488c795006eed2abe2d33b8e4c/"+json_response.result
+        }
+        else return "https://testnets.opensea.io"
+      }
+      else return "https://testnets.opensea.io"
+    }
+
     return (
       <>
         <p className="text-3xl max-w-md text-center">
@@ -246,12 +270,14 @@ const Home: NextPage = (props) => {
         </p>
         <button
           className="btn btn-primary rounded-full"
-          onClick={() => {
-            const link = "https://testnets.opensea.io/";
+          onClick={ async () => {
+            isLoadingOpen(true)
+            const link = await retrieveTokenURL();
             window.open(link, "_blank");
+            isLoadingOpen(false)
           }}
         >
-          See my certificate
+          {!loadOpen ? <p>See my certificate</p> : <TailSpin color="#FFF" height={40} width={40} wrapperStyle={{ justifyContent: "center" }} />}
         </button>
         <button
           className="btn btn-primary rounded-full"

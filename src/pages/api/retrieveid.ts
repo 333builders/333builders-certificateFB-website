@@ -20,7 +20,9 @@ export default async function handler(
       process.env.URL,
     );
     const nfts = await web3.alchemy.getNfts({owner: req.body.address, contractAddresses: ["0x6be666719e7346488c795006eed2abe2d33b8e4c"] })
-    res.status(200).json({ result: String(parseInt(nfts.ownedNfts[0].id.tokenId, 16)) })
+    const ownedNfts = nfts.ownedNfts
+    ownedNfts.sort((a,b) => new Date(b.timeLastUpdated).getTime() - new Date(a.timeLastUpdated).getTime())
+    res.status(200).json({ result: String(parseInt(ownedNfts[0].id.tokenId, 16)) })
   }
   catch (err) {
     res.status(500).json({ result: 'Error' })

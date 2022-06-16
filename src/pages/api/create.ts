@@ -8,6 +8,7 @@ const { registerFont, createCanvas, loadImage } = require('canvas')
 registerFont(path.join(process.cwd(), '/public/SpaceGrotesk-Regular.ttf'), { family: 'San Serif' })
 import Abi from '../../../public/CertificateFB333Builders.json'
 const { ethers } = require("ethers");
+const axios = require('axios').default;
 
 type Data = {
   result: string
@@ -88,13 +89,23 @@ export default async function handler(
     var stream_metadata = Readable.from(JSON.stringify(metadata), { encoding: 'utf8' })
     stream_metadata.path = "pinata_issue.png" //read more here https://github.com/PinataCloud/Pinata-SDK/issues/28#issuecomment-816439078
     const res_metadata = await pinata.pinFileToIPFS(stream_metadata, options_metadata)
-
+    //retrieve gasprice
+    var data = '{\r\n    "jsonrpc":"2.0",\r\n    "method":"eth_gasPrice",\r\n    "params":[],\r\n    "id":0\r\n}\r\n';
+    var config = {
+      method: 'post',
+      url: process.env.URL,
+      headers: { 
+        'Content-Type': 'text/plain'
+      },
+      data : data
+    };
+    const response = await axios(config)
+    const gasPrice = ethers.BigNumber.from(response.data.result)
     const provider = new ethers.providers.AlchemyProvider("maticmum", process.env.API_KEY)
     const walletPrivateKey = new ethers.Wallet(process.env.PRIVATE_KEY)
     const wallet = walletPrivateKey.connect(provider)
     const smart_contract = new ethers.Contract("0x7B4EB709B974Cf57b5D7fFdf567D65c7e6cF7214", Abi.abi, wallet)
-    const tx = await smart_contract.safeMint("https://ipfs.io/ipfs/" + res_metadata.IpfsHash, req.body.address)
-    console.log(tx)
+    const tx = await smart_contract.safeMint("https://ipfs.io/ipfs/" + res_metadata.IpfsHash, req.body.address, { gasPrice: gasPrice.toNumber(), gasLimit: 200000})
     res.status(200).json({ result: tx.hash })
   }
    catch (err) {

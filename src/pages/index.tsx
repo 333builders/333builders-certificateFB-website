@@ -2,11 +2,13 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useConnect, useNetwork, useContractWrite, useAccount } from "wagmi";
+import { useConnect, useNetwork, useContractWrite, useAccount, useContractEvent, useSigner } from "wagmi";
 import LOGO from "../components/Logo";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Abi from '../../public/CertificateFB333Builders.json'
 import { TailSpin } from 'react-loader-spinner'
+import { BigNumber } from "ethers";
+import {AiOutlineSearch} from "react-icons/ai"
 
 const useIsMounted = () => {
   const [mounted, setMounted] = useState(false);
@@ -21,8 +23,12 @@ type Inputs = {
 const Home: NextPage = (props) => {
   const [minted, setMinted] = useState(false);
   const isMounted = useIsMounted();
-  const [cid, setCid] = useState('')
+  const [tx, setTx] = useState('')
   const [ready, isReady] = useState(false)
+  const [idNft, setId] = useState(0)
+  const [{ data: accountData, error: error_user, loading: loading_user }, disconnect] = useAccount()
+  const [{ data: data_signer, error: error_signer, loading: loading_signer }, getSigner] = useSigner()
+  console.log(data_signer)
   const [
     {
       data: { connector, connectors, connected },
@@ -33,7 +39,7 @@ const Home: NextPage = (props) => {
   ] = useConnect();
   const [{ data: networkData, error: switchNetworkError }, switchNetwork] =
     useNetwork();
-
+    
   const SwitchNetwork = () => {
     return (
       <>
@@ -76,13 +82,14 @@ const Home: NextPage = (props) => {
     const [load, isLoading] = useState(false)
     const [name, setName] = useState('')
     const [templateWhite, setTemplateWhite] = useState(true)
+    const [errorMint, setErrorMint] = useState('')
 
     const {
       register,
       handleSubmit,
       formState: { errors },
     } = useForm<Inputs>();
-    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const onSubmit: SubmitHandler<Inputs> = async () => {
 
       isLoading(true)
       const response = await fetch('/api/create', {
@@ -90,12 +97,15 @@ const Home: NextPage = (props) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ template: templateWhite ? 'white' : 'black', name: name })
+        body: JSON.stringify({ template: templateWhite ? 'white' : 'black', name: name, address: accountData.address })
       });
       if (response.ok) {
         const json_response = await response.json();
-        setCid(json_response.result)
+        setTx(json_response.result)
         isReady(true)
+      }
+      else {
+        setErrorMint("error")
       }
       isLoading(false)
     };
@@ -120,60 +130,53 @@ const Home: NextPage = (props) => {
       )
     }
 
-    const ButtonMint = () => {
-      const [message, setMessage] = useState('')
-      const [load, isLoading] = useState(false)
-      const [{ data, error, loading }, write] = useContractWrite(
+    const Pending = () => {
+      
+      useContractEvent(
         {
-          addressOrName: '0xC8b05f4ABaB41A84a1822F072C569DCEc0048C25',
+          addressOrName: '0x7b4eb709b974cf57b5d7ffdf567d65c7e6cf7214',
           contractInterface: Abi.abi,
+          signerOrProvider: data_signer
         },
-        'mint',
-        {
-          args: cid,
+        'Transfer',
+        (event) => { 
+          console.log(event)
+          if(event[1] == accountData.address) {
+            let id = BigNumber.from(event[2])
+            console.log(id.toNumber())
+            setId(id.toNumber())
+            setMinted(true)
+            setTx('')
+            isReady(false)
+          }
         }
-      )
+      )  
 
-      const ButtonLife = () => {
-        return (
-          <>
-            <button
-              className='w-full btn btn-primary'
-              onClick={async () => {
-                isLoading(true)
-                const tx = await write()
-                if (tx.data !== undefined) {
-                  await tx.data.wait()
-                }
-                if (tx.error !== undefined) {
-                  setMessage('Error, remember you can mint once')
-                }
-                else {
-                  setMinted(true)
-                }
-                isLoading(false)
-              }}>MINT</button>
-          </>
-        )
-      }
+      const url_tx = "https://mumbai.polygonscan.com/tx/" + tx
 
       return (
-        <div className="w-full pt-8">
-          {load ? <ButtonLoading /> : <ButtonLife />}
-          <div className="pt-4">{message}</div>
+        <>
+        <div>
+        <p className="text-2xl max-w-md text-center">
+        Pending transaction...
+        </p>
+        <ButtonLoading/>
+          <p className="text-2xl max-w-md text-center pt-4">View on Polygonscan <a href={url_tx} target="_blank"><AiOutlineSearch className="inline"/></a></p>
         </div>
+        </>
       )
+
     }
 
     return (
       <>
+      {ready && <Pending />}
+      {!ready && 
         <form
           className="form-control w-full max-w-lg card space-y-8 bg-slate-700"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div className="card-body">
-            {ready && <p className="text-center">Certificate is ready, now you can mint it and create your NFT!</p>
-            }
             {!ready &&
               <>
                 <label className="label">
@@ -186,8 +189,6 @@ const Home: NextPage = (props) => {
                   {...register("name", {
                     required: true,
                     onChange: (event) => {
-                      setCid('')
-                      isReady(false)
                       setName(event.target.value)
                     },
                     disabled: load
@@ -196,11 +197,11 @@ const Home: NextPage = (props) => {
                 />
                 <div className="pt-8 grid grid-cols-2 gap-4">
                   <div className="text-center">
-                  <input type="radio" id="white" name="template" value="" checked={templateWhite} onClick={() => { setTemplateWhite(!templateWhite);}}/>
+                  <input type="radio" id="white" name="template" value="" defaultChecked={templateWhite} onClick={() => { setTemplateWhite(!templateWhite);}}/>
                   <label htmlFor="white" className="pl-2">White</label>
                   </div>
                   <div className="text-center">
-                  <input type="radio" id="black" name="template" value="" checked={!templateWhite} onClick={() => { setTemplateWhite(!templateWhite)}}></input>
+                  <input type="radio" id="black" name="template" value="" defaultChecked={!templateWhite} onClick={() => { setTemplateWhite(!templateWhite)}}></input>
                   <label htmlFor="black" className="pl-2">Black</label>
                   </div>
                 </div>
@@ -224,54 +225,30 @@ const Home: NextPage = (props) => {
                 </>}
                 {errors.name && <span>This field is required</span>}
                 {load && <ButtonLoading />}
-                {!load && !ready && <ButtonSubmit />}
-                {!load && ready && <ButtonMint />}
+                {!load && <ButtonSubmit />}
+                {errorMint}
               </div>
         </form>
+       }
       </>
     );
   };
 
   const Opensea = () => {
 
-    const [{ data: accountData }, disconnect] = useAccount()
-
-    const [loadOpen,isLoadingOpen] = useState(false)
-
-    async function retrieveTokenURL() {
-      console.log(accountData.address)
-      if(accountData?.address) {
-        const response = await fetch('/api/retrieveid', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ address: accountData.address })
-        });
-        if (response.ok) {
-          const json_response = await response.json();
-          return "https://opensea.io/assets/matic/0xC8b05f4ABaB41A84a1822F072C569DCEc0048C25/"+json_response.result
-        }
-        else return "https://opensea.io"
-      }
-      else return "https://opensea.io"
-    }
-
+    const url_opensea = "https://testnets.opensea.io/assets/mumbai/0x7b4eb709b974cf57b5d7ffdf567d65c7e6cf7214/" + idNft
     return (
       <>
-        <p className="text-3xl max-w-md text-center">
-          The certificate is minted to your wallet, you can see it on Opensea!
+        <p className="text-2xl max-w-md text-center">
+          The certificate is minted to your wallet, you can view it on Opensea!
         </p>
         <button
           className="btn btn-primary rounded-full"
-          onClick={ async () => {
-            isLoadingOpen(true)
-            const link = await retrieveTokenURL();
-            window.open(link, "_blank");
-            isLoadingOpen(false)
+          onClick={ () => {
+            window.open(url_opensea, "_blank");
           }}
         >
-          {!loadOpen ? <p>See my certificate</p> : <TailSpin color="#FFF" height={40} width={40} wrapperStyle={{ justifyContent: "center" }} />}
+          View on Opensea
         </button>
         <button
           className="btn btn-primary rounded-full"
@@ -299,8 +276,8 @@ const Home: NextPage = (props) => {
         {!connected ? (
           <Login />
         ) : (
-          <>{networkData.chain.id === 137 &&
-            <>{!minted ? <Minter /> : <Opensea />}</>
+          <>{networkData.chain.id === 80001 &&
+            <>{!minted ? <Minter /> : <Opensea/>}</>
           }</>
         )}
       </div>

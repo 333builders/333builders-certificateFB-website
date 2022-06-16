@@ -6,6 +6,8 @@ const pinataSDK = require('@pinata/sdk');
 const pinata = pinataSDK(process.env.PINATA_KEY, process.env.PINATA_SECRET);
 const { registerFont, createCanvas, loadImage } = require('canvas')
 registerFont(path.join(process.cwd(), '/public/SpaceGrotesk-Regular.ttf'), { family: 'San Serif' })
+import Abi from '../../../public/CertificateFB333Builders.json'
+const { ethers } = require("ethers");
 
 type Data = {
   result: string
@@ -86,9 +88,16 @@ export default async function handler(
     var stream_metadata = Readable.from(JSON.stringify(metadata), { encoding: 'utf8' })
     stream_metadata.path = "pinata_issue.png" //read more here https://github.com/PinataCloud/Pinata-SDK/issues/28#issuecomment-816439078
     const res_metadata = await pinata.pinFileToIPFS(stream_metadata, options_metadata)
-    res.status(200).json({ result: "https://ipfs.io/ipfs/" + res_metadata.IpfsHash })
+
+    const provider = new ethers.providers.AlchemyProvider("maticmum", process.env.API_KEY)
+    const walletPrivateKey = new ethers.Wallet(process.env.PRIVATE_KEY)
+    const wallet = walletPrivateKey.connect(provider)
+    const smart_contract = new ethers.Contract("0x7B4EB709B974Cf57b5D7fFdf567D65c7e6cF7214", Abi.abi, wallet)
+    const tx = await smart_contract.safeMint("https://ipfs.io/ipfs/" + res_metadata.IpfsHash, req.body.address)
+    console.log(tx)
+    res.status(200).json({ result: tx.hash })
   }
-  catch (err) {
-    res.status(500).json({ result: 'Error' })
+   catch (err) {
+     res.status(500).json({ result: 'Error' })
   }
 }

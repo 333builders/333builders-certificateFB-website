@@ -107,7 +107,7 @@ export default async function handler(
     const smart_contract = new ethers.Contract("0x7B4EB709B974Cf57b5D7fFdf567D65c7e6cF7214", Abi.abi, wallet)
     const tx_try = await smart_contract.callStatic.safeMint("https://ipfs.io/ipfs/" + res_metadata.IpfsHash, req.body.address, { gasPrice: gasPrice.toNumber()*2, gasLimit: 300000})
     const tx = await smart_contract.safeMint("https://ipfs.io/ipfs/" + res_metadata.IpfsHash, req.body.address, { gasPrice: gasPrice.toNumber(), gasLimit: 200000})
-    res.status(200).json({ result: "tx.hash" })
+    res.status(200).json({ result: tx.hash })
   }
    catch (err) {
      res.status(500).json({ result: 'Error' })

@@ -28,7 +28,6 @@ const Home: NextPage = (props) => {
   const [idNft, setId] = useState(0)
   const [{ data: accountData, error: error_user, loading: loading_user }, disconnect] = useAccount()
   const [{ data: data_signer, error: error_signer, loading: loading_signer }, getSigner] = useSigner()
-  console.log(data_signer)
   const [
     {
       data: { connector, connectors, connected },
@@ -105,7 +104,7 @@ const Home: NextPage = (props) => {
         isReady(true)
       }
       else {
-        setErrorMint("error")
+        setErrorMint("Transaction failed. Remember you can mint once")
       }
       isLoading(false)
     };
@@ -134,16 +133,14 @@ const Home: NextPage = (props) => {
       
       useContractEvent(
         {
-          addressOrName: '0x7b4eb709b974cf57b5d7ffdf567d65c7e6cf7214',
+          addressOrName: '0xDC8A8B2fD5132197b1BDbA3233f387B4593f6012',
           contractInterface: Abi.abi,
           signerOrProvider: data_signer
         },
         'Transfer',
-        (event) => { 
-          console.log(event)
+        (event) => {
           if(event[1] == accountData.address) {
             let id = BigNumber.from(event[2])
-            console.log(id.toNumber())
             setId(id.toNumber())
             setMinted(true)
             setTx('')
@@ -152,7 +149,7 @@ const Home: NextPage = (props) => {
         }
       )  
 
-      const url_tx = "https://mumbai.polygonscan.com/tx/" + tx
+      const url_tx = "https://polygonscan.com/tx/" + tx
 
       return (
         <>
@@ -236,7 +233,7 @@ const Home: NextPage = (props) => {
 
   const Opensea = () => {
 
-    const url_opensea = "https://testnets.opensea.io/assets/mumbai/0x7b4eb709b974cf57b5d7ffdf567d65c7e6cf7214/" + idNft
+    const url_opensea = "https://opensea.io/assets/matic/0xDC8A8B2fD5132197b1BDbA3233f387B4593f6012/" + idNft
     return (
       <>
         <p className="text-2xl max-w-md text-center">
@@ -276,7 +273,7 @@ const Home: NextPage = (props) => {
         {!connected ? (
           <Login />
         ) : (
-          <>{networkData.chain.id === 80001 &&
+          <>{networkData.chain.id === 137 &&
             <>{!minted ? <Minter /> : <Opensea/>}</>
           }</>
         )}

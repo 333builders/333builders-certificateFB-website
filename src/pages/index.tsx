@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useConnect, useNetwork, useContractWrite, useAccount, useContractEvent, useSigner } from "wagmi";
+import { useConnect, useNetwork, useContractWrite, useAccount, useContractEvent, useSigner, useWaitForTransaction } from "wagmi";
 import LOGO from "../components/Logo";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Abi from '../../public/CertificateFB333Builders.json'
@@ -38,14 +38,27 @@ const Home: NextPage = (props) => {
   ] = useConnect();
   const [{ data: networkData, error: switchNetworkError }, switchNetwork] =
     useNetwork();
-    
+
+    const addPolygon = async () => {
+      await window.ethereum.request({ method: 'wallet_addEthereumChain',
+         params:[
+          {"chainName":"Polygon Mainnet",
+          "rpcUrls":["https://polygon-rpc.com/","https://rpc-mainnet.matic.network","https://matic-mainnet.chainstacklabs.com","https://rpc-mainnet.maticvigil.com","https://rpc-mainnet.matic.quiknode.pro","https://matic-mainnet-full-rpc.bwarelabs.com"],
+          "nativeCurrency":{"name":"MATIC","symbol":"MATIC","decimals":18},
+          "chainId":'0x89',
+          "blockExplorerUrls":["https://polygonscan.com"]
+         }
+        ]
+      });
+      }
+
   const SwitchNetwork = () => {
     return (
       <>
         {switchNetwork && networkData.chain.id !== 137 && (
           <button
             className="btn btn-primary rounded-full"
-            onClick={() => switchNetwork(137)}
+            onClick={() => addPolygon()}
           >
             Switch to Polygon
           </button>
@@ -130,7 +143,7 @@ const Home: NextPage = (props) => {
     }
 
     const Pending = () => {
-      
+          
       useContractEvent(
         {
           addressOrName: '0xDC8A8B2fD5132197b1BDbA3233f387B4593f6012',

@@ -222,6 +222,7 @@ const Home: NextPage = (props) => {
                     alt="template white"
                     width={350}
                     height={350}
+                    priority
                   />
                   ) : (
                     <Image
@@ -229,6 +230,7 @@ const Home: NextPage = (props) => {
                     alt="template black"
                     width={350}
                     height={350}
+                    priority
                   />
                   )}
                 </div>

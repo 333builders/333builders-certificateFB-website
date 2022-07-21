@@ -3,7 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useConnect, useNetwork, useContractWrite, useAccount, useContractEvent, useSigner, useWaitForTransaction } from "wagmi";
-import LOGO from "../components/Logo";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Abi from '../../public/CertificateFB333Builders.json'
 import { TailSpin } from 'react-loader-spinner'
@@ -282,8 +281,13 @@ const Home: NextPage = (props) => {
         <meta name="description" content="333.Builders" />
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center space-y-8">
-        <LOGO />
-        <h2 className="text-3xl font-bold text-center pb-8">333.Builders</h2>
+        <Image
+          src="/333B_LogoBianco_Tondo.png"
+          alt="title"
+          width={250}
+          height={133}
+          priority
+        />
         <SwitchNetwork />
         {!connected ? (
           <Login />
